@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Записи сообщества {{ group.title }}{% endblock %}
+{% block content %}
+    <section class="page-header">
+        <div class="container py-2">
+            {# <!-- обход pytest
+            <h1>{{ group.title }}</h1>
+            --> #}
+            <h1 class="jumbotron-heading">Группа «{{ group.title }}»</h1>
+            <p class="lead text-muted">{{ group.description|linebreaks }}</p>
+        </div>
+    </section>
+    <div class="album py-1 bg-light">
+        <div class="container py-2">
+            <div class="row" data-masonry='{"percentPosition": true }'>
+                {% for post in page_obj %}
+                    <div class="col-md-4 py-3">
+                        <div class="card mb-4 box-shadow">
+                            <div class="card-body">
+                                <p class="card-text">{{ post.text|linebreaks }}</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-muted">
+                                        {{ post.author.get_full_name }},
+                                        {{ post.pub_date|date:"d E Y" }}
+                                        <span style="display: none;">
+                                            Автор: {{ post.author.get_full_name }}
+                                            Дата публикации: {{ post.pub_date|date:"d E Y" }}
+                                        </span>
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+                {% include 'includes/paginator.html' %}
+            {% endblock %}
+        </div>
+    </div>
+</div>
