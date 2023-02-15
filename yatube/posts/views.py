@@ -1,16 +1,14 @@
 from django.contrib.auth.decorators import login_required
-from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404, redirect, render
 
 from .forms import PostForm
 from .models import Group, Post, User
+from .paginate_utils import paginate_posts
 
 
 def index(request):
-    post_list = Post.objects.all()
-    paginator = Paginator(post_list, 10)
-    page_number = request.GET.get("page")
-    page_obj = paginator.get_page(page_number)
+    post_list = Post.objects.select_related().all()
+    page_obj = paginate_posts(post_list, request)
     context = {
         "page_obj": page_obj,
     }
@@ -19,10 +17,8 @@ def index(request):
 
 def group_posts(request, slug):
     group = get_object_or_404(Group, slug=slug)
-    post_list = group.posts.all()
-    paginator = Paginator(post_list, 10)
-    page_number = request.GET.get("page")
-    page_obj = paginator.get_page(page_number)
+    post_list = group.posts.select_related().all()
+    page_obj = paginate_posts(post_list, request)
     context = {
         "group": group,
         "page_obj": page_obj,
@@ -32,14 +28,16 @@ def group_posts(request, slug):
 
 def profile(request, username):
     author = get_object_or_404(User, username=username)
-    posts = Post.objects.filter(author=author).order_by("-pub_date")
+    posts = (
+        Post.objects
+        .select_related('author', 'group')
+        .filter(author=author)
+        .order_by("-pub_date")
+    )
     post_count = posts.count()
-    paginator = Paginator(posts, 10)
-    page = request.GET.get("page")
-    page_obj = paginator.get_page(page)
+    page_obj = paginate_posts(posts, request)
     context = {
         "author": author,
-        "posts": page_obj,
         "page_obj": page_obj,
         "post_count": post_count,
     }
@@ -48,31 +46,26 @@ def profile(request, username):
 
 def post_detail(request, post_id):
     post = get_object_or_404(Post, pk=post_id)
-    post_count = Post.objects.filter(author=post.author).count()
     if request.method == "POST":
         return post_delete(request, post_id)
     context = {
         "post": post,
-        "post_count": post_count,
     }
     return render(request, "posts/post_detail.html", context)
 
 
 @login_required
 def post_create(request):
-    if request.method == "POST":
-        form = PostForm(request.POST)
-        if form.is_valid():
-            post = form.save(commit=False)
-            post.author = request.user
-            post.save()
-            return redirect("posts:profile", username=request.user.username)
-    else:
-        form = PostForm()
-    context = {
-        "form": form,
-    }
-    return render(request, "posts/create_post.html", context)
+    form = PostForm(request.POST or None)
+    if request.method == "GET" or not form.is_valid():
+        context = {
+            "form": form,
+        }
+        return render(request, "posts/create_post.html", context)
+    post = form.save(commit=False)
+    post.author = request.user
+    post.save()
+    return redirect("posts:profile", username=request.user.username)
 
 
 @login_required
@@ -80,19 +73,14 @@ def post_edit(request, post_id):
     post = get_object_or_404(Post, pk=post_id)
     if request.user != post.author:
         return redirect("posts:post_detail", post_id=post.id)
-    if request.method == "POST":
-        form = PostForm(request.POST, instance=post)
-        if form.is_valid():
-            Post.objects.filter(pk=post.pk).update(**form.cleaned_data)
-            return redirect("posts:post_detail", post_id=post.id)
-    else:
-        form = PostForm(instance=post)
-    context = {
-        "form": form,
-        "post": post,
-        "is_edit": True,
-    }
-    return render(request, "posts/create_post.html", context)
+    form = PostForm(request.POST or None, instance=post)
+    if request.method == "GET" or not form.is_valid():
+        context = {
+            "form": form
+        }
+        return render(request, "posts/create_post.html", context)
+    form.save()
+    return redirect("posts:post_detail", post_id=post.id)
 
 
 @login_required
@@ -100,4 +88,5 @@ def post_delete(request, post_id):
     post = get_object_or_404(Post, pk=post_id)
     if request.user == post.author:
         post.delete()
-        return redirect("posts:index")
+        return redirect("posts:profile", username=request.user.username)
+    return redirect("posts:post_detail", post_id=post.id)

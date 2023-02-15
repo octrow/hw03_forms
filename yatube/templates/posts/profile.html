@@ -5,52 +5,9 @@
         {{ profile }}
         <h1 class="text-center my-3">Все посты пользователя {{ author.username }}</h1>
         <h3 class="text-center my-3">Всего постов: {{ post_count }}</h3>
-        {% for post in posts %}
-            <article class="my-5">
-                <ul class="list-group">
-                    <li class="list-group-item">
-                        Автор: {{ post.author.get_full_name }}
-                        <a href="{% url 'posts:profile' post.author %}"
-                           class="btn btn-sm btn-outline-secondary">Все посты пользователя</a>
-                    </li>
-                    <li class="list-group-item">Дата публикации: {{ post.pub_date }}</li>
-                </ul>
-                <p class="my-3">{{ post.text }}</p>
-                <a href="{% url 'posts:post_detail' post.pk %}"
-                   class="btn btn-sm btn-outline-secondary">подробная информация</a>
-                {% if post.group %}
-                    <a href="{% url 'posts:group_list' post.group.slug %}"
-                       class="btn btn-sm btn-outline-primary my-1">Все записи группы</a>
-                {% else %}
-                    <li class="list-group-item text-danger">
-                        <strong>У этого поста нет группы.</strong>
-                    </li>
-                {% endif %}
-                <hr>
-            </article>
+        {% for post in page_obj %}
+        {% include 'posts/includes/post_card.html' with group_link_flag=1 %}
         {% endfor %}
-        <nav aria-label="Page navigation example">
-            <ul class="pagination justify-content-center">
-                {% if page_obj.has_previous %}
-                    <li class="page-item">
-                        <a class="page-link" href="?page=1">&laquo; Первая</a>
-                    </li>
-                    <li class="page-item">
-                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Преведущая</a>
-                    </li>
-                {% endif %}
-                <li class="page-item active">
-                    <a class="page-link" href="#">{{ page_obj.number }}</a>
-                </li>
-                {% if page_obj.has_next %}
-                    <li class="page-item">
-                        <a class="page-link" href="?page={{ page_obj.next_page_number }}">Следущая</a>
-                    </li>
-                    <li class="page-item">
-                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Последняя &raquo;</a>
-                    </li>
-                {% endif %}
-            </ul>
-        </nav>
+        {% include 'posts/includes/paginator.html' %}
     </div>
 {% endblock %}
