@@ -14,7 +14,7 @@
         <div class="container py-2">
             <div class="row" data-masonry='{"percentPosition": true }'>
                 {% for post in page_obj %}
-                {% include 'posts/includes/post_card.html' with profile_link_flag=1 index_view=1 %}
+                {% include 'posts/includes/post_card.html' with index_view=True %}
                 {% endfor %}
                 {% include 'posts/includes/paginator.html' %}
             {% endblock %}

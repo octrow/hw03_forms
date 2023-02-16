@@ -1,4 +1,23 @@
-{% if index_view %}
+{% if not index_view %}
+<article class="my-5">
+  <ul class="list-group">
+    <li class="list-group-item">
+      Автор: {{ post.author.get_full_name }}
+    </li>
+    <li class="list-group-item">Дата публикации: {{ post.pub_date }}</li>
+  </ul>
+  <p class="my-3">{{ post.text|linebreaks }}</p>
+  <a href="{% url 'posts:post_detail' post.pk %}" class="btn btn-sm btn-outline-secondary">подробная информация</a>
+  {% if post.group %}
+    <a href="{% url 'posts:group_list' post.group.slug %}" class="btn btn-sm btn-outline-primary my-1">Все записи группы</a>
+  {% else %}
+    <li class="list-group-item text-danger">
+      <strong>У этого поста нет группы.</strong>
+    </li>
+  {% endif %}
+  <hr>
+</article>
+{% else %}
 <div class="col-md-4 py-3">
   <div class="card mb-4 box-shadow">
       <div class="card-body">
@@ -26,39 +45,13 @@
                   <a href="{% url 'posts:post_detail' post.pk %}"
                       type="button"
                       class="btn btn-outline-secondary">ℹ️</a>
-                  {% if profile_link_flag %}
                   <a href="{% url 'posts:profile' post.author %}" 
                       type="button"
                       class="btn btn-outline-secondary">👤</a>
-                  {% endif %}
               </div>
               
           </div>
       </div>
   </div>
 </div> 
-{% else %}
-<article class="my-5">
-  <ul class="list-group">
-    <li class="list-group-item">
-      Автор: {{ post.author.get_full_name }}
-      {% if profile_link_flag %}
-      <a href="{% url 'posts:profile' post.author %}" class="btn btn-sm btn-outline-secondary">Все посты пользователя</a>
-      {% endif %}
-    </li>
-    <li class="list-group-item">Дата публикации: {{ post.pub_date }}</li>
-  </ul>
-  <p class="my-3">{{ post.text|linebreaks }}</p>
-  <a href="{% url 'posts:post_detail' post.pk %}" class="btn btn-sm btn-outline-secondary">подробная информация</a>
-  {% if post.group %}
-    {% if group_link_flag %}
-    <a href="{% url 'posts:group_list' post.group.slug %}" class="btn btn-sm btn-outline-primary my-1">Все записи группы</a>
-    {% endif %}
-  {% else %}
-    <li class="list-group-item text-danger">
-      <strong>У этого поста нет группы.</strong>
-    </li>
-  {% endif %}
-  <hr>
-</article>
 {% endif %}

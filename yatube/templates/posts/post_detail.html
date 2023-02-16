@@ -35,10 +35,8 @@
                                class="btn btn-sm btn-outline-secondary">Редактировать</a>
                         </li>
                         <li class="list-group-item">
-                            <form method="post">
-                                {% csrf_token %}
-                                {% if request.user == post.author %}<button type="submit">Delete</button>{% endif %}
-                            </form>
+                            <a href="{% url 'posts:post_delete' post.pk %}"
+                               class="btn btn-sm btn-outline-secondary">Удалить</a>
                         </li>
                     {% endif %}
                 </ul>
