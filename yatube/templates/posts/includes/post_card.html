@@ -1,30 +1,10 @@
-{% if not index_view %}
-<article class="my-5">
-  <ul class="list-group">
-    <li class="list-group-item">
-      Автор: {{ post.author.get_full_name }}
-    </li>
-    <li class="list-group-item">Дата публикации: {{ post.pub_date }}</li>
-  </ul>
-  <p class="my-3">{{ post.text|linebreaks }}</p>
-  <a href="{% url 'posts:post_detail' post.pk %}" class="btn btn-sm btn-outline-secondary">подробная информация</a>
-  {% if post.group %}
-    <a href="{% url 'posts:group_list' post.group.slug %}" class="btn btn-sm btn-outline-primary my-1">Все записи группы</a>
-  {% else %}
-    <li class="list-group-item text-danger">
-      <strong>У этого поста нет группы.</strong>
-    </li>
-  {% endif %}
-  <hr>
-</article>
-{% else %}
 <div class="col-md-4 py-3">
   <div class="card mb-4 box-shadow">
       <div class="card-body">
           <p class="card-text">{{ post.text|linebreaks }}</p>
           <div class="d-flex justify-content-between align-items-center">
               {% if post.group %}
-              {% if group_link_flag %}
+              {% if not group_link_flag %}
                   <div class="btn-group">
                       <a href="{% url 'posts:group_list' post.group.slug %}"
                           type="button"
@@ -41,6 +21,7 @@
                   <span style='color: red'>Этой публикации нет ни
                       в одном сообществе.</span>
               {% endif %}
+              {% if not profile_link_flag %}
               <div class="btn-group">
                   <a href="{% url 'posts:post_detail' post.pk %}"
                       type="button"
@@ -49,9 +30,8 @@
                       type="button"
                       class="btn btn-outline-secondary">👤</a>
               </div>
-              
+              {% endif %}
           </div>
       </div>
   </div>
 </div> 
-{% endif %}
