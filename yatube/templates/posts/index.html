@@ -21,6 +21,7 @@
             <div class="row" data-masonry='{"percentPosition": true }'>
                 {% for post in page_obj %}
                 {% include 'posts/includes/post_card.html' %}
+                <!-- Не используем <hr> из-за собственной сетки постов -->
                 {% endfor %}
                 {% include 'posts/includes/paginator.html' %}
             </div>

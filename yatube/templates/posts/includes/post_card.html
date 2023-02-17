@@ -21,11 +21,11 @@
                   <span style='color: red'>Этой публикации нет ни
                       в одном сообществе.</span>
               {% endif %}
-              {% if not profile_link_flag %}
               <div class="btn-group">
                   <a href="{% url 'posts:post_detail' post.pk %}"
                       type="button"
                       class="btn btn-outline-secondary">ℹ️</a>
+                      {% if not profile_link_flag %}
                   <a href="{% url 'posts:profile' post.author %}" 
                       type="button"
                       class="btn btn-outline-secondary">👤</a>
